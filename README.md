@@ -48,3 +48,32 @@
 * **Multimodal Data Processing:** The processing pipeline must ingest asymmetric datastreams—subsurface GPR reflections and optical camera frames—into a unified inference pipeline.
 * **Automated Target Discrimination:** The AI architecture must classify detected subsurface anomalies against historical clutter (roots, metallic scrap, mineral pockets) and assign probabilistic confidence ratings to identified threats.
 * **Telemetry & Coordinate Tagging:** When an anomaly is validated, the system must log its spatial GPS/local-frame coordinates, halt autonomous traversal, and broadcast structured alert telemetry to a centralized command station.
+
+# Proposed Solution
+Mechanical Architecture & Hardware Innovation
+1. System Overview
+The physical architecture of the autonomous mine detection platform is engineered to solve three critical hardware bottlenecks in mechanized demining: minimizing ground pressure to prevent accidental detonation, ensuring continuous sensor proximity over highly irregular terrain, and maintaining rapid, modular deployability. The system utilizes a lightweight space-frame hull paired with compliant locomotion and a dynamic sensor boom.
+
+2. Primary Mechanical Subsystems
+A. Lightweight Modular Space-Frame Chassis
+Architecture: The core hull is constructed using a low-weight modular space-frame (utilizing aluminum extrusions or rigid composite rods).
+
+Engineering Advantage: This provides exceptional structural rigidity and torsional stiffness while drastically reducing the vehicle's overall mass. The modular rail system allows for rapid prototyping, enabling electronics bays, motor drivers, and battery payloads to be repositioned to perfectly balance the center of gravity without requiring complete chassis redesigns.
+
+B. Pressure-Negating Locomotion (TPU "Tweels")
+Architecture: The rover abandons traditional pneumatic rubber tires in favor of custom 3D-printed "Tweels" (airless tires) manufactured from highly flexible TPU (Thermoplastic Polyurethane) utilizing an internal collapsing honeycomb or spoke geometry.
+
+Engineering Advantage: Standard anti-personnel mines detonate under 5kg to 15kg of concentrated downward force. If the rover accidentally rolls over an undetected fuse, the flexible internal spokes of the Tweel instantly deform around the object. Instead of transferring the weight of the chassis downward to trigger the mine, the wheel safely absorbs the shape of the obstacle, ensuring the ground pressure remains well below the detonation threshold.
+
+C. Dynamic Sensor Deployment (Four-Bar Scissor Linkage)
+Architecture: The GPR and metal detection sensors are mounted to a forward-facing, motorized four-bar scissor linkage. The linkage terminates in a semi-circular sensor mounting array.
+
+Engineering Advantage:
+
+The Four-Bar Sweep: By expanding and contracting the linkage, the platform achieves a massive, continuous lateral sweep across the X-Z plane without needing to constantly turn the entire vehicle.
+
+The Semi-Circle Array: Standard straight-bar mounts create detection blind spots at the far edges of a sweep. The semi-circular geometry ensures an overlapping, unbroken detection swath, drastically reducing the time and number of passes required to clear a grid.
+
+D. Passive Terrain Contouring (Y-Axis Compliance)
+Architecture: The connection point between the primary space-frame chassis and the four-bar sensor linkage features a passive, free-floating Y-Axis hinge.
+
