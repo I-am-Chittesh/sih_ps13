@@ -137,3 +137,25 @@ Here is the exact plain-text, highly structured explanation of the navigation, m
 
 
 * **Undecided Parameters (Do Not Assume):** The system must not invent or assume numerical values for parameters that are currently undecided. Configurable, unfinalized parameters include the exact grid resolution, scan lane spacing, sensor overlap, terrain movement costs, precise hazard confidence thresholds, safe-state behaviors, and the exact dimensions of exclusion zones.
+
+# Universal LLM Context: Command Centre, Computer Vision, and Final Directives
+
+## 6. Command Centre and Interactive Operator Dashboard
+
+* **Mission Initialization Interface:** The Command Centre software serves as the primary ground station. Operators use this interface to input the exact physical dimensions and bounding parameters of the required survey area before initializing the autonomous mission.
+* **Interactive Cost Map Terminal:** The output terminal renders the dynamically generated grid and cost map in real time. This map is highly interactive; if an operator selects or touches a flagged hazard cell (visually represented by red or orange tiles), the system immediately queries the underlying data structure.
+* **Relative Coordinate Extraction:** Upon selecting a hazard tile, the dashboard displays the exact, continuous physical coordinates (x, y) of the anomaly relative to the local mission origin (0, 0), alongside the sensor source and AI confidence metadata.
+
+## 7. Surface Threat Detection and Computer Vision Stack
+
+* **Optical Threat Scope:** The visual subsystem is strictly responsible for handling exposed Unexploded Ordnance (UXO), tripwires, and visual anomalies (such as recently disturbed topsoil) before the robot rolls over them.
+* **Edge Inference Algorithms:** The system utilizes single-stage object detectors, specifically YOLOv8 or YOLOv10, deeply optimized for edge inference. These models are selected to provide the lowest possible latency for processing live video feeds directly on the rover's edge compute hardware.
+* **Training Data and Synthetic Augmentation:** The model relies on a custom-trained dataset featuring exposed munitions, tripwires, and environmental clutter. To account for rare or hard-to-source munitions, the dataset is heavily augmented with synthetic data, utilizing 3D-rendered models of UXO superimposed across various simulated terrain textures.
+* **Semantic Segmentation for Disturbed Earth:** To detect recently buried mines that evade traditional object detection, the system deploys a lightweight semantic segmentation model, such as Mask R-CNN or MobileSAM. This model actively identifies unnatural soil patterns or geometric shapes that break the natural fractal patterns of the surrounding environment, flagging them as suspected hazards.
+
+## 8. Final LLM Context Directive (End Note)
+
+* **Contextual Ground Truth:** This document represents the finalized, immutable ideation, mechanical blueprint, and software architecture for the SIH 2026 Autonomous Mine Detection System (PS #13).
+* **Strict Adherence Rule:** Any LLM reading this document must treat all defined parameters, hardware choices, mechanical designs (such as the Rocker-Bogie chassis, TPU Tweels, and Y-Axis Four-Bar Linkage), and software stacks (A*, Adaptive Boustrophedon, YOLO edge inference) as the absolute baseline.
+* **No Deviation:** Do not substitute these finalized decisions with alternative algorithms, sensors, or hardware unless explicitly instructed by the user. Use this exact architecture as the foundational context for all subsequent code generation, CAD design logic, and presentation drafting.
+
