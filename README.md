@@ -77,3 +77,63 @@ The Semi-Circle Array: Standard straight-bar mounts create detection blind spots
 D. Passive Terrain Contouring (Y-Axis Compliance)
 Architecture: The connection point between the primary space-frame chassis and the four-bar sensor linkage features a passive, free-floating Y-Axis hinge.
 
+Here is the exact plain-text, highly structured explanation of the navigation, mapping, and mission logic. This is stripped of all code blocks and tables so another LLM can instantly ingest it as pure contextual architecture rules.
+
+---
+
+# Universal LLM Context: Autonomous Navigation, Mapping, and Mission Logic
+
+## 1. Core Autonomy and Navigation Architecture
+
+* **Definition of Autonomy:** The rover must operate without continuous manual directional control after initialization. The system's primary objective is the systematic, autonomous coverage of a designated survey area to locate potential hazards.
+
+
+* **Area Coverage Strategy:** The platform utilizes Adaptive Boustrophedon Coverage (a lawn-mower pattern) to generate parallel scan lanes across the environment. This global pattern is highly adaptive; if a region becomes inaccessible due to an obstacle or a newly detected hazard, the system recalculates the remaining coverage plan to survey all reachable, permitted, and unscanned regions.
+
+
+* **Point-to-Point Path Planning:** While the Boustrophedon strategy determines the overall area coverage pattern, the A* algorithm is used to determine the exact, valid route from the rover's current position to the next required scan waypoint.
+
+
+* **Dynamic Cost Mapping:** The environment is represented as a dynamic grid-based cost map. The A* planner continuously evaluates traversable regions, high-cost terrain, physical obstacles, and restricted hazard zones based on real-time updates to this map.
+
+
+
+## 2. Spatial Representation and Localization
+
+* **Dual Coordinate Systems:** The system maintains both continuous physical coordinates and discrete grid coordinates. The rover's pose is tracked as a continuous physical state utilizing $x$, $y$, and a rotational heading $\theta$, all relative to a local mission origin.
+
+
+* **Grid Conversion:** These continuous coordinates are mathematically converted into discrete grid columns and rows based on a configurable grid resolution. Every grid cell corresponds to a precise physical area, allowing the system to scale accurately to different mission dimensions.
+
+
+* **Closed-Loop Localization:** The rover estimates its physical state using a closed-loop feedback system that currently relies on wheel encoders for movement estimation and an IMU for orientation and rotational feedback.
+
+
+
+## 3. Threat Mapping and Dynamic Replanning
+
+* **Hazard Coordinate Decoupling:** When a potential hazard is detected, the system must accurately map its location. To do this, the system treats the rover's position, the physical offset of the sensor, and the estimated position of the anomaly as completely separate quantities.
+
+
+* **Hazard State Response:** Upon detecting a potential threat, the rover must immediately evaluate it, enter a defined safe state, record the detection, and assign its estimated physical and grid coordinates.
+
+
+* **Dynamic Route Invalidation:** The affected grid region is then marked as restricted on the dynamic map. If this new restricted zone or any newly discovered obstacle invalidates the rover's currently planned A* route, the navigation system must immediately replan a new route to continue the mission safely.
+
+
+
+## 4. Mission Control and Live Visualization
+
+* **State-Based Logic:** The overall mission flow is governed by explicit mission-level state logic. This logic manages initialization, coverage plan generation, waypoint navigation, scanning, hazard responses, and mission completion.
+
+
+* **Operator Dashboard:** A separate visualization layer provides a real-time representation of the mission. This dashboard displays the physical survey dimensions, the dynamic grid, the live rover pose, completed coverage, planned routes, obstacles, and restricted regions. It also allows operators to view specific metadata linked to detected hazards, such as coordinate locations, sensor sources, and timestamps.
+
+
+
+## 5. Strict Implementation Boundaries
+
+* **Finalized Architecture:** Any LLM contributing to this project must treat the following as immutable baselines: Adaptive Boustrophedon coverage, A* path planning, the dynamic grid/cost map, local physical coordinates $(x, y, \theta)$, closed-loop encoder/IMU feedback, dynamic route replanning, and explicit state-based mission control.
+
+
+* **Undecided Parameters (Do Not Assume):** The system must not invent or assume numerical values for parameters that are currently undecided. Configurable, unfinalized parameters include the exact grid resolution, scan lane spacing, sensor overlap, terrain movement costs, precise hazard confidence thresholds, safe-state behaviors, and the exact dimensions of exclusion zones.
