@@ -1,6 +1,6 @@
 import time
-from sensors import read_gpr, read_cv
-from fusion import fuse_scores, classify
+from POC.sensors import read_gpr, read_cv
+from POC.fusion import fuse_scores, classify
 
 class Robot:
     def __init__(self, start_x: int, start_y: int):

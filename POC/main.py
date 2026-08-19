@@ -20,8 +20,9 @@ BLUE = (50, 100, 255)
 WHITE = (255, 255, 255)
 DARK_GRAY = (30, 30, 30)
 TEXT_COLOR = (220, 220, 220)
+YELLOW = (255, 255, 0) # Color for the interactive highlighter
 
-def draw_grid(screen, world):
+def draw_grid(screen, world, selected_cell):
     for x in range(world.width):
         for y in range(world.height):
             rect = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
@@ -37,8 +38,12 @@ def draw_grid(screen, world):
                 
             pygame.draw.rect(screen, color, rect)
             pygame.draw.rect(screen, DARK_GRAY, rect, 1) # Grid lines
+            
+            # Draw the yellow targeting box if the user clicks a cell
+            if selected_cell == (x, y):
+                pygame.draw.rect(screen, YELLOW, rect, 3)
 
-def draw_dashboard(screen, font, robot, world):
+def draw_dashboard(screen, font, robot, world, selected_cell):
     panel_rect = pygame.Rect(GRID_W * CELL_SIZE, 0, PANEL_W, HEIGHT)
     pygame.draw.rect(screen, DARK_GRAY, panel_rect)
     
@@ -49,22 +54,52 @@ def draw_dashboard(screen, font, robot, world):
         f"ROBOT STATE: {robot.state}",
         f"POSITION: ({robot.x}, {robot.y})",
         "-"*30,
-        f"GPR CONFIDENCE: {robot.current_gpr}",
-        f"CV CONFIDENCE:  {robot.current_cv}",
-        f"FUSED THREAT:   {robot.current_fused}",
-        "-"*30,
-        "ACTIVE THREAT ALERTS:"
     ]
+    
+    # NEW: Interactive Cell Inspector Panel
+    if selected_cell:
+        cx, cy = selected_cell
+        cell = world.get_cell(cx, cy)
+        status = "UNEXPLORED"
+        if cell.is_obstacle: status = "OBSTACLE"
+        elif cell.is_flagged: status = "THREAT DETECTED"
+        elif cell.is_covered: status = "CLEARED SAFE"
+        
+        texts.extend([
+            "--- CELL INSPECTOR ---",
+            f"TARGET COORD: (X:{cx}, Y:{cy})",
+            f"STATUS: {status}",
+            "-"*30
+        ])
+    else:
+        texts.extend([
+            "--- CELL INSPECTOR ---",
+            "CLICK GRID TO INSPECT",
+            "ANY CELL COORDINATE",
+            "-"*30
+        ])
+        
+    texts.extend([
+        "ACTIVE THREAT ALERTS:"
+    ])
     
     y_offset = 20
     for text in texts:
-        color = RED if "THREAT_HALT" in text else TEXT_COLOR
+        # Dynamic coloring for the dashboard text
+        color = TEXT_COLOR
+        if "THREAT_HALT" in text or "THREAT DETECTED" in text:
+            color = RED
+        elif "CLEARED SAFE" in text:
+            color = GREEN
+        elif "CELL INSPECTOR" in text:
+            color = YELLOW
+            
         surface = font.render(text, True, color)
         screen.blit(surface, (GRID_W * CELL_SIZE + 20, y_offset))
         y_offset += 25
         
-    # Log display
-    for alert in robot.alert_log[-8:]: # Show last 8 alerts
+    # Log display for the scrolling alert feed
+    for alert in robot.alert_log[-7:]: 
         log_txt = f"[{alert['time']}] C:{alert['coord']} F:{alert['fused']}"
         surface = font.render(log_txt, True, RED)
         screen.blit(surface, (GRID_W * CELL_SIZE + 20, y_offset))
@@ -86,6 +121,7 @@ def main():
     
     running = True
     mission_complete = False
+    selected_cell = None # Tracks the user's mouse click coordinates
 
     while running:
         screen.fill(BLACK)
@@ -93,6 +129,16 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            # NEW: Mouse Click Listener
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = event.pos
+                # Convert the pixel click into the exact grid matrix coordinate
+                grid_x = mouse_x // CELL_SIZE
+                grid_y = mouse_y // CELL_SIZE
+                
+                # Make sure the user clicked on the grid, not the dashboard
+                if 0 <= grid_x < GRID_W and 0 <= grid_y < GRID_H:
+                    selected_cell = (grid_x, grid_y)
 
         if not mission_complete:
             if robot.state == "THREAT_HALT":
@@ -101,12 +147,10 @@ def main():
                     robot.state = "MOVING"
             else:
                 if not current_path_queue:
-                    # Find the next valid target in the global plan
                     while global_plan:
                         target = global_plan.pop(0)
                         if world.get_cell(*target).is_obstacle:
                             continue
-                        # Use A* to navigate to the next valid lawnmower target
                         route = astar(world, (robot.x, robot.y), target)
                         if route:
                             current_path_queue = route
@@ -115,8 +159,6 @@ def main():
                 if current_path_queue:
                     next_step = current_path_queue.pop(0)
                     robot.x, robot.y = next_step
-                    
-                    # Sense the new cell
                     cell = world.get_cell(robot.x, robot.y)
                     if not cell.is_covered:
                         robot.sense_cell(cell)
@@ -125,20 +167,19 @@ def main():
                         mission_complete = True
                         robot.state = "MISSION_COMPLETE"
 
-        # Render
-        draw_grid(screen, world)
+        # Render Loop
+        draw_grid(screen, world, selected_cell)
         
         # Draw Robot
         rx = int(robot.x * CELL_SIZE + CELL_SIZE/2)
         ry = int(robot.y * CELL_SIZE + CELL_SIZE/2)
         pygame.draw.circle(screen, BLUE, (rx, ry), int(CELL_SIZE/2.5))
         
-        draw_dashboard(screen, font, robot, world)
+        draw_dashboard(screen, font, robot, world, selected_cell)
         
         pygame.display.flip()
         clock.tick(FPS)
 
-    # End of run summary
     print("\n--- MISSION SUMMARY ---")
     print(f"Total Area Swept: {GRID_W * GRID_H} cells")
     print(f"Threats Neutralized: {len(robot.alert_log)}")
