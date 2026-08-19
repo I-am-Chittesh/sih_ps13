@@ -1,7 +1,7 @@
 import pygame
 import sys
 from grid_world import GridWorld
-from path_planner import generate_coverage_path, astar
+from pp import generate_coverage_path, astar
 from robot_state import Robot
 
 # Constants
