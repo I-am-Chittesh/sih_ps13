@@ -1,5 +1,5 @@
 import random
-from POC.grid_world import Cell
+from grid_world import Cell
 
 def read_gpr(cell: Cell) -> float:
     if cell.is_threat:
